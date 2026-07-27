@@ -1,0 +1,121 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.app {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart {
+  color: #ff6600;
+  font-weight: bold;
+}
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  margin-top: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.active-tab {
+  color: red;
+  border-bottom: 2px solid red;
+}
+
+.dish-card {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid #ddd;
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.dish-info {
+  width: 70%;
+}
+
+.dish-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 120px;
+  height: 40px;
+
+  background-color: #2dca73;
+  border-radius: 20px;
+
+  padding: 0 12px;
+}
+
+.counter-btn {
+  background-color: transparent;
+  border: none;
+
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+
+  cursor: pointer;
+}
+
+.count {
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.customization {
+  color: blue;
+}
+
+.not-available {
+  color: red;
+}
+
+@media screen and (max-width: 768px) {
+  .dish-card {
+    flex-direction: column;
+  }
+
+  .dish-image {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .dish-info {
+    width: 100%;
+  }
+}
