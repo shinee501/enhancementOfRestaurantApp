@@ -1,135 +1,94 @@
-import {useState, useEffect} from 'react'
-import './App.css'
+import {Component} from 'react'
+import {BrowserRouter, Switch, Route} from 'react-router-dom'
 
-const App = () => {
-  const [restaurant, setRestaurant] = useState({})
-  const [categories, setCategories] = useState([])
-  const [activeTab, setActiveTab] = useState(0)
-  const [dishCounts, setDishCounts] = useState({})
+import Home from './components/Home'
+import Login from './components/Login'
+import Cart from './components/Cart'
+import ProtectedRoute from './components/ProtectedRoute'
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch(
-        'https://apis2.ccbp.in/restaurant-app/restaurant-menu-list-details',
-      )
+import CartContext from './context/CartContext'
 
-      const data = await response.json()
-
-      setRestaurant(data[0])
-      setCategories(data[0].table_menu_list)
-    }
-
-    fetchData()
-  }, [])
-
-  const increment = dishId => {
-    setDishCounts(prev => ({
-      ...prev,
-      [dishId]: (prev[dishId] || 0) + 1,
-    }))
+class App extends Component {
+  state = {
+    cartList: [],
   }
 
-  const decrement = dishId => {
-    setDishCounts(prev => {
-      const currentCount = prev[dishId] || 0
+  addCartItem = dish => {
+    this.setState(prevState => {
+      const existingItem = prevState.cartList.find(
+        each => each.dish_id === dish.dish_id,
+      )
 
-      if (currentCount === 0) {
-        return prev
+      if (existingItem) {
+        return {
+          cartList: prevState.cartList.map(each =>
+            each.dish_id === dish.dish_id
+              ? {...each, quantity: each.quantity + dish.quantity}
+              : each,
+          ),
+        }
       }
 
       return {
-        ...prev,
-        [dishId]: currentCount - 1,
+        cartList: [...prevState.cartList, dish],
       }
     })
   }
 
-  const cartCount = Object.values(dishCounts).reduce(
-    (total, count) => total + count,
-    0,
-  )
+  removeCartItem = id => {
+    this.setState(prevState => ({
+      cartList: prevState.cartList.filter(each => each.dish_id !== id),
+    }))
+  }
 
-  const dishes =
-    categories.length > 0 ? categories[activeTab].category_dishes : []
+  removeAllCartItems = () => {
+    this.setState({
+      cartList: [],
+    })
+  }
 
-  return (
-    <div className="app">
-      <header className="header">
-        <h1>{restaurant.restaurant_name}</h1>
+  incrementCartItemQuantity = id => {
+    this.setState(prevState => ({
+      cartList: prevState.cartList.map(each =>
+        each.dish_id === id ? {...each, quantity: each.quantity + 1} : each,
+      ),
+    }))
+  }
 
-        <div className="cart-container">
-          <p>My Orders</p>
-          <p>{cartCount}</p>
-        </div>
-      </header>
+  decrementCartItemQuantity = id => {
+    this.setState(prevState => ({
+      cartList: prevState.cartList
+        .map(each =>
+          each.dish_id === id ? {...each, quantity: each.quantity - 1} : each,
+        )
+        .filter(each => each.quantity > 0),
+    }))
+  }
 
-      <div className="tabs">
-        {categories.map((category, index) => (
-          <button
-            type="button"
-            key={category.menu_category_id}
-            className={activeTab === index ? 'active-tab tab' : 'tab'}
-            onClick={() => setActiveTab(index)}
-          >
-            {category.menu_category}
-          </button>
-        ))}
-      </div>
+  render() {
+    const {cartList} = this.state
 
-      <div className="dish-list">
-        {dishes.map(dish => (
-          <div className="dish-card" key={dish.dish_id}>
-            <div className="dish-info">
-              <p className="dish-name">{dish.dish_name}</p>
-
-              <p>
-                {dish.dish_currency} {dish.dish_price}
-              </p>
-
-              <p>{dish.dish_description}</p>
-
-              <p>{dish.dish_calories} calories</p>
-
-              {dish.addonCat && dish.addonCat.length > 0 && (
-                <p className="customization">Customizations available</p>
-              )}
-
-              {dish.dish_Availability ? (
-                <div className="counter">
-                  {' '}
-                  <button
-                    type="button"
-                    className="counter-btn"
-                    onClick={() => decrement(dish.dish_id)}
-                  >
-                    {' '}
-                    -{' '}
-                  </button>{' '}
-                  <p className="count">{dishCounts[dish.dish_id] || 0}</p>{' '}
-                  <button
-                    type="button"
-                    className="counter-btn"
-                    onClick={() => increment(dish.dish_id)}
-                  >
-                    {' '}
-                    +{' '}
-                  </button>{' '}
-                </div>
-              ) : (
-                <p className="not-available">Not available</p>
-              )}
-            </div>
-
-            <img
-              src={dish.dish_image}
-              alt={dish.dish_name}
-              className="dish-image"
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+    return (
+      <CartContext.Provider
+        value={{
+          cartList,
+          addCartItem: this.addCartItem,
+          removeCartItem: this.removeCartItem,
+          removeAllCartItems: this.removeAllCartItems,
+          incrementCartItemQuantity: this.incrementCartItemQuantity,
+          decrementCartItemQuantity: this.decrementCartItemQuantity,
+        }}
+      >
+        <BrowserRouter>
+          <Switch>
+            <Route exact path="/login" component={Login} />
+            <ProtectedRoute exact path="/" component={Home} />
+            <ProtectedRoute exact path="/cart" component={Cart} />
+          </Switch>
+        </BrowserRouter>
+      </CartContext.Provider>
+    )
+  }
 }
 
 export default App
